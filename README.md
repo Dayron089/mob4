@@ -8,28 +8,61 @@ PokeAPI (https://pokeapi.co/)
 API полностью бесплатный и не требует API-ключа для использования.
 
 
+Что хранится в Room:
+
+База данных pokemon.db, версия 1, две таблицы.
+
+favorites — избранные покемоны. Запись добавляется при нажатии на сердечко на экране Detail и удаляется при повторном нажатии. Поля: id (PK), name, imageUrl, types (csv), addedAt (millis). После полного перезапуска приложения избранное остаётся.
+
+history — история просмотров. При каждом успешном открытии экрана Detail запись пишется в таблицу через REPLACE по id (обновляется только время последнего просмотра). На экране History список выводится в обратном порядке по времени, есть кнопка очистки.
+
+
+Как проверить (сделал — перезапустил — осталось):
+
+1. Дождаться загрузки списка, открыть любого покемона.
+2. Нажать сердечко на экране Detail (станет красным).
+3. Вернуться, открыть Favorites — он там.
+4. Полностью закрыть приложение (свайпнуть из недавних или adb shell am force-stop com.example.rickandmorty).
+5. Запустить заново. В Favorites запись на месте, в History тоже.
+
+
 Чеклист выполненных требований:
 
 Обязательный функционал:
-+ Навигация: Реализовано 2 экрана (Список с поиском и Детали покемона). Передача аргументов через route.
-+ Архитектура: Используется MVVM + Repository. Состояния экранов управляются через UiState (Sealed Interface).
-+ Сеть: Все запросы выполняются через Retrofit и Coroutines (suspend функции) в viewModelScope.
-+ UI состояния: Обработаны состояния Загрузки (Loading), Ошибки (Error с кнопкой Retry), Пустого результата (Empty) и Успеха (Success).
-+ Избранное: Реализовано добавление в избранное (хранится локально в памяти ViewModel/Repository, данные сохраняются при повороте экрана).
++ Hilt: DI подключён через @HiltAndroidApp на Application, @AndroidEntryPoint на MainActivity, @HiltViewModel на ViewModel. Зависимости (Retrofit, Repository, AppDatabase, DAO) раздаются модулями NetworkModule и DatabaseModule с @InstallIn(SingletonComponent::class). В UI и ViewModel нет ни одного new или object для создания зависимостей.
++ Room: 2 таблицы (favorites и history), реально используются — favorites переживает перезапуск, history пишется при каждом открытии Detail.
++ Приложение из ДЗ №3 остаётся рабочим: 4 экрана через Navigation Compose (List, Detail, Favorites, History), Retrofit + coroutines + viewModelScope, UI состояния Loading / Error+Retry / Empty / Success на List и Loading / Error+Retry / Success на Detail.
 
 Технические требования:
++ Hilt 2.50
++ Room 2.6.1 (Entity + DAO + Database, наблюдение через Flow)
 + Jetpack Compose + Material3
-+ Navigation Compose
-+ ViewModel + viewModelScope
-+ Retrofit + Gson Converter
++ Navigation Compose 2.7.6 (parent-graph scoping для общего ViewModel)
++ ViewModel + viewModelScope + StateFlow + collectAsStateWithLifecycle
++ Retrofit + Gson Converter + OkHttp logging
++ Coil 2.5.0 для картинок
++ Kotlin 1.9.20, AGP 8.2.0, KSP, compileSdk 34, minSdk 24
 
 Бонусы:
-+ Debounce поиска: Реализована задержка поиска 500мс через Job и delay для оптимизации запросов.
-+ Логирование: Подключен HttpLoggingInterceptor для отладки сетевых запросов.
-+ Работа с изображениями: Использована библиотека Coil для асинхронной загрузки спрайтов.
++ Реализованы оба сценария Room сразу — и Favourites, и History, плюс отдельные экраны под каждый.
++ Debounce поиска 500мс через Job и delay.
++ Подключен HttpLoggingInterceptor для отладки сетевых запросов.
++ Использована библиотека Coil для асинхронной загрузки спрайтов.
++ Один общий ViewModel на весь NavGraph через hiltViewModel(parentBackStackEntry) — состояние не теряется между переходами.
+
 
 Скринщоты:
 
-<img width="214" height="443" alt="Снимок экрана 2026-01-26 в 13 38 03" src="https://github.com/user-attachments/assets/ca3e0f34-b9ed-45db-bc0c-8f29c4dbdda1" />
-<img width="218" height="437" alt="Снимок экрана 2026-01-26 в 13 38 12" src="https://github.com/user-attachments/assets/6199bbf0-760a-4a10-974d-446b62bc7ced" />
-<img width="223" height="446" alt="Снимок экрана 2026-01-26 в 13 38 50" src="https://github.com/user-attachments/assets/3485a64a-face-4e41-b4af-a1ab249e8a44" />
+01_loading.png — Loading при старте
+02_list.png — список покемонов (Success)
+03_detail.png — Detail с залитым сердечком
+04_favorites.png — Favorites из Room
+05_history.png — History из Room
+06_error.png — Error + Retry (без интернета)
+
+![Loading](screenshots/01_loading.png)
+![List](screenshots/02_list.png)
+![Detail](screenshots/03_detail.png)
+![Favorites](screenshots/04_favorites.png)
+![History](screenshots/05_history.png)
+![Error](screenshots/06_error.png)
