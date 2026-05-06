@@ -2,34 +2,34 @@
 Группа: Б9123-09.03.03
 
 Выбранный API:
-PokeAPI (https://pokeapi.co/)
-Открытый API, предоставляющий информацию о покемонах.
-В приложении используется для получения списка персонажей, их изображений (спрайтов) и детальной информации (рост, вес, типы).
-API полностью бесплатный и не требует API-ключа для использования.
+PokeAPI (https://pokeapi.co/). Открытый API, не требует ключа. Используется для получения списка покемонов и детальной информации.
 
 
-Чеклист выполненных требований:
+Что сделано в ДЗ №4:
 
-Обязательный функционал:
-+ Навигация: Реализовано 2 экрана (Список с поиском и Детали покемона). Передача аргументов через route.
-+ Архитектура: Используется MVVM + Repository. Состояния экранов управляются через UiState (Sealed Interface).
-+ Сеть: Все запросы выполняются через Retrofit и Coroutines (suspend функции) в viewModelScope.
-+ UI состояния: Обработаны состояния Загрузки (Loading), Ошибки (Error с кнопкой Retry), Пустого результата (Empty) и Успеха (Success).
-+ Избранное: Реализовано добавление в избранное (хранится локально в памяти ViewModel/Repository, данные сохраняются при повороте экрана).
++ Добавлен Hilt — DI через @HiltAndroidApp, @AndroidEntryPoint, @HiltViewModel. Модули NetworkModule и DatabaseModule раздают Retrofit, Repository, AppDatabase, DAO.
++ Добавлен Room (база pokemon.db, версия 1) — две таблицы: favorites и history.
++ favorites — записи добавляются по сердечку на Detail, удаляются повторным нажатием, переживают перезапуск.
++ history — пишется при каждом открытии Detail (REPLACE по id), отображается на отдельном экране в обратном порядке по времени, есть кнопка очистки.
 
-Технические требования:
-+ Jetpack Compose + Material3
-+ Navigation Compose
-+ ViewModel + viewModelScope
-+ Retrofit + Gson Converter
 
-Бонусы:
-+ Debounce поиска: Реализована задержка поиска 500мс через Job и delay для оптимизации запросов.
-+ Логирование: Подключен HttpLoggingInterceptor для отладки сетевых запросов.
-+ Работа с изображениями: Использована библиотека Coil для асинхронной загрузки спрайтов.
+Чеклист требований ТЗ:
 
-Скринщоты:
++ Hilt: DI подключён на Application, MainActivity, ViewModel. В UI и VM нет new или object для зависимостей.
++ Room: 2 таблицы (favorites, history), реально используются — favorites переживает перезапуск, history пишется при каждом открытии Detail.
++ Базовый проект из ДЗ №3 рабочий: 4 экрана через Navigation Compose, Retrofit + coroutines, UI-состояния Loading / Error+Retry / Empty / Success.
 
-<img width="214" height="443" alt="Снимок экрана 2026-01-26 в 13 38 03" src="https://github.com/user-attachments/assets/ca3e0f34-b9ed-45db-bc0c-8f29c4dbdda1" />
-<img width="218" height="437" alt="Снимок экрана 2026-01-26 в 13 38 12" src="https://github.com/user-attachments/assets/6199bbf0-760a-4a10-974d-446b62bc7ced" />
-<img width="223" height="446" alt="Снимок экрана 2026-01-26 в 13 38 50" src="https://github.com/user-attachments/assets/3485a64a-face-4e41-b4af-a1ab249e8a44" />
+
+Стек:
+
+Kotlin 1.9.20, AGP 8.2.0, KSP, Compose Material3, Navigation Compose 2.7.6, Hilt 2.50, Room 2.6.1, Retrofit 2.9.0, Coil 2.5.0. minSdk 24, targetSdk 34, compileSdk 34.
+
+
+Скриншоты:
+
+<img src="screenshots/01_loading.png" width="260" alt="Loading" />
+<img src="screenshots/02_list.png" width="260" alt="List" />
+<img src="screenshots/03_detail.png" width="260" alt="Detail" />
+<img src="screenshots/04_favorites.png" width="260" alt="Favorites" />
+<img src="screenshots/05_history.png" width="260" alt="History" />
+<img src="screenshots/06_error.png" width="260" alt="Error" />
